@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.testng.Assert;
 
 import java.util.List;
 
@@ -79,6 +80,13 @@ public class HomePage {
 
     public WebElement getNextPageButton(){
         return nextPageButton;
+    }
+
+    public void verifyArticlesHeader(WebElement element,String searchedString){
+        if(!element.getText().toLowerCase().matches(searchedString)){
+            System.out.println("Fail="+element.getText());
+            Assert.assertTrue(false);
+        }
     }
 
 

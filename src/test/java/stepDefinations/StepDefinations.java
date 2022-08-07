@@ -22,6 +22,8 @@ import java.util.function.Function;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class StepDefinations extends Base {
+    HomePage hp;
+
     @Given("Initialize the browser with chrome")
     public void initialize_the_browser_with_chrome() throws IOException {
         driver = initializeDriver();
@@ -32,27 +34,26 @@ public class StepDefinations extends Base {
     }
     @When("User click on search button")
     public void user_click_on_search_button() {
-        HomePage hp= new HomePage(driver);
+        hp= new HomePage(driver);
         explicitWaitElementVisible(hp.getHeaderLabel());
         hp.clickSearchButton();
     }
     @When("Input {string} in the search box")
     public void input_in_the_search_box(String string) {
-        HomePage hp= new HomePage(driver);
+        hp= new HomePage(driver);
         hp.setSearchBoxAndEnter(string);
         explicitWaitElementPresent(hp.getElementResultLabel(),string);
     }
     @Then("Verify that it shows all articles title with {string} keyword")
     public void verify_that_it_shows_all_articles_title_with_keyword(String string) {
-        HomePage hp= new HomePage(driver);
+        hp= new HomePage(driver);
 
         boolean staleElement=true;
         while(staleElement) {
             try {
                 explicitWaitElementClickable(hp.getViewAllButton());
 
-                WebElement ele= driver.findElement( By.xpath("(//a[@class='search__view-all button button--border'][normalize-space()='View All'])[2]"));
-                scrollIntoView(driver,ele);
+                scrollIntoView(driver,driver.findElement(hp.getViewAllButton()));
                 hp.clickViewAllButton();
                 staleElement = false;
             } catch (StaleElementReferenceException staleException) {
@@ -61,12 +62,7 @@ public class StepDefinations extends Base {
             }
         }
 
-        String[] splitString= string.split(" ");
-        StringBuilder searchedString=new StringBuilder(".*");
-        for(String s:splitString){
-            searchedString.append(s);
-            searchedString.append(".*");
-        }
+        String searchedString=stringRegexPattern(string);
 
         boolean isNextPageExists= true;
 
@@ -77,10 +73,7 @@ public class StepDefinations extends Base {
                 for(int i=0;i<listArticles.size();i++){
                     WebElement element= listArticles.get(i);
                     System.out.println(element.getText());
-                    if(!element.getText().toLowerCase().matches(searchedString.toString())){
-                        System.out.println("Fail="+element.getText());
-                        Assert.assertTrue(false);
-                    }
+                    hp.verifyArticlesHeader(element,searchedString);
                 }
 
                 if(isNextPageExists){

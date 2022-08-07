@@ -56,4 +56,14 @@ public class Base {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("arguments[0].scrollIntoView();", ele);
     }
+
+    public String stringRegexPattern(String string){
+        String[] splitString= string.split(" ");
+        StringBuilder searchedString=new StringBuilder(".*");
+        for(String s:splitString){
+            searchedString.append(s);
+            searchedString.append(".*");
+        }
+        return searchedString.toString();
+    }
 }
