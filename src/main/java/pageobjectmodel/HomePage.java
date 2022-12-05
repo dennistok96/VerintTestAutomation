@@ -1,17 +1,14 @@
 package pageobjectmodel;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
+import basepackage.Base;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.testng.Assert;
 
 import java.util.List;
 
-public class HomePage {
+public class HomePage extends Base {
     WebDriver driver;
 
     @FindBy(xpath = "//ul[@class='site-header__buttons flex unstyled-list']/li[1]/following-sibling::li[6]")
@@ -51,6 +48,10 @@ public class HomePage {
         return queryResultLabel;
     }
 
+    public void waitForElementPresent(String string){
+        this.explicitWaitElementPresent(driver,getElementResultLabel(),string);
+    }
+
     public By getHeaderLabel(){
         return headerLabel;
     }
@@ -87,6 +88,44 @@ public class HomePage {
             System.out.println("Fail="+element.getText());
             Assert.assertTrue(false);
         }
+    }
+
+    public void verifyArticlesHeader(String s){
+        boolean staleElement=true;
+        while(staleElement) {
+            try {
+                explicitWaitElementClickable(driver,getViewAllButton());
+
+                scrollIntoView(driver,driver.findElement(getViewAllButton()));
+                clickViewAllButton();
+                staleElement = false;
+            } catch (StaleElementReferenceException staleException) {
+                staleException.printStackTrace();
+                staleElement = true;
+            }
+        }
+
+        String searchedString=stringRegexPattern(s);
+
+        boolean isNextPageExists= true;
+
+        do{
+            isNextPageExists= validateIsNextPageButtonExists();
+            List<WebElement> listArticles= getListArticlesHeader();
+            if(listArticles.size() > 0){
+                for(int i=0;i<listArticles.size();i++){
+                    WebElement element= listArticles.get(i);
+                    System.out.println(element.getText());
+                    verifyArticlesHeader(element,searchedString);
+                }
+
+                if(isNextPageExists){
+                    scrollIntoView(driver,getNextPageButton());
+                    clickNextPageButton();
+                }
+
+            }
+        }while(isNextPageExists);
     }
 
 

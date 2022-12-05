@@ -35,55 +35,16 @@ public class StepDefinations extends Base {
     @When("User click on search button")
     public void user_click_on_search_button() {
         hp= new HomePage(driver);
-        explicitWaitElementVisible(hp.getHeaderLabel());
         hp.clickSearchButton();
     }
     @When("Input {string} in the search box")
-    public void input_in_the_search_box(String string) {
-        hp= new HomePage(driver);
+    public void input_in_the_search_box(String string){
         hp.setSearchBoxAndEnter(string);
-        explicitWaitElementPresent(hp.getElementResultLabel(),string);
+        hp.waitForElementPresent(string);
+
     }
     @Then("Verify that it shows all articles title with {string} keyword")
     public void verify_that_it_shows_all_articles_title_with_keyword(String string) {
-        hp= new HomePage(driver);
-
-        boolean staleElement=true;
-        while(staleElement) {
-            try {
-                explicitWaitElementClickable(hp.getViewAllButton());
-
-                scrollIntoView(driver,driver.findElement(hp.getViewAllButton()));
-                hp.clickViewAllButton();
-                staleElement = false;
-            } catch (StaleElementReferenceException staleException) {
-                staleException.printStackTrace();
-                staleElement = true;
-            }
-        }
-
-        String searchedString=stringRegexPattern(string);
-
-        boolean isNextPageExists= true;
-
-        do{
-            isNextPageExists= hp.validateIsNextPageButtonExists();
-            List<WebElement> listArticles= hp.getListArticlesHeader();
-            if(listArticles.size() > 0){
-                for(int i=0;i<listArticles.size();i++){
-                    WebElement element= listArticles.get(i);
-                    System.out.println(element.getText());
-                    hp.verifyArticlesHeader(element,searchedString);
-                }
-
-                if(isNextPageExists){
-                    scrollIntoView(driver,hp.getNextPageButton());
-                    hp.clickNextPageButton();
-                }
-
-            }
-        }while(isNextPageExists);
-
-
+        hp.verifyArticlesHeader(string);
     }
 }
